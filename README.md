@@ -22,3 +22,14 @@ go get -u github.com/FoxComm/money
 m := money.Make(5000, currencies.USD)
 m.String() => "USD $50.00"
 ```
+
+## Inspiration
+
+Ideas and inspiration drawn from:
+
+* [Joda Money](http://www.joda.org/joda-money/)
+* [RubyMoney](https://github.com/RubyMoney/money)
+
+## License
+
+Released under the [MIT License](License).
