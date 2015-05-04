@@ -2,6 +2,12 @@
 
 A Go library handling money, currencies, and exchange conversion.
 
+## Goals
+
+1. Correctness
+2. Performant
+3. Extensible
+
 ## Usage
 
 #### Installation
