@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -47,11 +46,6 @@ var {{ .Code }} = Currency{
 `))
 
 func main() {
-	var generate bool
-
-	flag.BoolVar(&generate, "generate", false, "generate currencies from ./internal/currencies.json")
-	flag.Parse()
-
 	file, err := os.Open("./internal/currencies.json")
 	if err != nil {
 		panic(err)
