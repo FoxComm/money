@@ -5,7 +5,7 @@ var MXN = Currency{
 	Code:      "MXN",
 	Number:    484,
 	Symbol:    '$',
-	Separator: '.',
+	Decimal:   '.',
 	Delimiter: ',',
 	Minor:     100,
 }
