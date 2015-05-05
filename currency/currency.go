@@ -11,8 +11,8 @@ type Currency struct {
 	// Symbol is the shorthand used for a currency's name
 	Symbol rune
 
-	// Separator is a rune which separates the decimals
-	Separator rune
+	// Decimal is a rune which separates the decimals
+	Decimal rune
 
 	// Delimiter is a rune which delimits integer thousands
 	Delimiter rune

@@ -4,9 +4,12 @@ VETARGS?=-asmdecl -atomic -bool -buildtags -copylocks -methods \
 test:
 	go test $(PACKAGES)
 
+currencies:
+	go run ./internal/main.go
+	@make format
+
 format:
-	@echo "--> Running go fmt"
-	@go imports $(PACKAGES)
+	goimports -e -w ./
 
 vet:
 	@go tool vet 2>/dev/null ; if [ $$? -eq 3 ]; then \
@@ -19,4 +22,4 @@ vet:
 		echo "and fix them if necessary before submitting the code for reviewal."; \
 	fi
 
-.PHONY: format test vet
+.PHONY: format test vet currencies
