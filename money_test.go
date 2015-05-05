@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	. "github.com/FoxComm/money/currency"
-	dec "github.com/shopspring/decimal"
+	"github.com/shopspring/decimal"
 )
 
 var (
@@ -13,8 +13,8 @@ var (
 	XTS = "XTS"
 )
 
-func d(value string) dec.Decimal {
-	if v, err := dec.NewFromString(value); err != nil {
+func d(value string) decimal.Decimal {
+	if v, err := decimal.NewFromString(value); err != nil {
 		panic(err)
 	} else {
 		return v
@@ -40,7 +40,7 @@ func TestZero(t *testing.T) {
 func TestAbs(t *testing.T) {
 	var monies = []struct {
 		money    Money
-		expected dec.Decimal
+		expected decimal.Decimal
 	}{
 		{Make(d("-10"), USD), d("10")},
 		{Make(d("0"), USD), d("0")},
