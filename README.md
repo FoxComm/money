@@ -23,12 +23,23 @@ m := money.Make(5000, currencies.USD)
 m.String() => "USD $50.00"
 ```
 
+### Generating currencies
+
+All `currency.Currency` structs are generated using the
+`internal/currencies.json` file via:
+
+```bash
+make currencies
+```
+
 ## Inspiration
 
 Ideas and inspiration drawn from:
 
 * [Joda Money](http://www.joda.org/joda-money/)
-* [RubyMoney](https://github.com/RubyMoney/money)
+* [RubyMoney](https://github.com/RubyMoney/money). A special thank you
+  for the `currencies-iso.json` since it served as the basis for our
+  json currencies and the idea of templating.
 
 ## License
 

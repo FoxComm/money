@@ -1,0 +1,38 @@
+{
+  "usd": {
+    "iso_code": "USD",
+    "name": "United States Dollar",
+    "symbol": "$",
+    "subunit_to_unit": 100,
+    "decimal_mark": ".",
+    "thousands_separator": ",",
+    "iso_numeric": "840"
+  },
+  "mxn": {
+    "iso_code": "MXN",
+    "name": "Mexican Peso",
+    "symbol": "$",
+    "subunit_to_unit": 100,
+    "decimal_mark": ".",
+    "thousands_separator": ",",
+    "iso_numeric": "484"
+  },
+  "cny": {
+    "iso_code": "CNY",
+    "name": "Chinese Renminbi Yuan",
+    "symbol": "¥",
+    "subunit_to_unit": 100,
+    "decimal_mark": ".",
+    "thousands_separator": ",",
+    "iso_numeric": "156"
+  },
+  "cad": {
+    "iso_code": "CAD",
+    "name": "Canadian Dollar",
+    "symbol": "$",
+    "subunit_to_unit": 100,
+    "decimal_mark": ".",
+    "thousands_separator": ",",
+    "iso_numeric": "124"
+  }
+}

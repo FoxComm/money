@@ -44,7 +44,7 @@ func Parse(str string) (money Money, err error) {
 	}
 
 	amountStr := strings.Replace(
-		strings.Replace(parsed[0], string(c.Separator), "", 1),
+		strings.Replace(parsed[0], string(c.Decimal), "", 1),
 		string(c.Delimiter),
 		"",
 		0,
