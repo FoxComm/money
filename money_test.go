@@ -21,15 +21,6 @@ func d(value string) decimal.Decimal {
 	}
 }
 
-func catchPanic(s string, t *testing.T) {
-	err := recover()
-	if err == nil {
-		t.Errorf("Money.%s => %s, expected panic", s, err)
-	} else if _, ok := err.(error); !ok {
-		t.Errorf("Money.%s => %s, expected panic", s, err)
-	}
-}
-
 func TestZero(t *testing.T) {
 	money := Zero(USD)
 	if !money.IsZero() {
@@ -199,7 +190,7 @@ func TestIsZero(t *testing.T) {
 func TestAdd(t *testing.T) {
 	var monies = []struct {
 		money    Money
-		add      dec.Decimal
+		add      decimal.Decimal
 		expected Money
 	}{
 		{Make(d("0"), USD), d("0"), Make(d("0"), USD)},
@@ -210,21 +201,24 @@ func TestAdd(t *testing.T) {
 	}
 
 	for _, m := range monies {
-		actual := m.money.Add(Make(m.add, USD))
-		if !actual.Equals(m.expected) {
-			t.Errorf("Money.Add() => %s, expected %s", actual.Amount(), m.expected.Amount())
+		if actual, err := m.money.Add(Make(m.add, USD)); err != nil {
+			t.Errorf("Money.Add() => unexpected error %s", err)
+		} else if !actual.Equals(m.expected) {
+			t.Errorf("Money.Add() => (%s, nil) expected %s", actual.Amount(), m.expected.Amount())
 		}
 	}
 
-	// wrong currency should panic
-	defer catchPanic("Add()", t)
-	monies[0].money.Add(Make(d("0"), MXN))
+	if zero, err := monies[0].money.Add(Make(d("0"), MXN)); err == nil {
+		t.Errorf("Money.Add() => expected error %s", err)
+	} else if !zero.IsZero() {
+		t.Errorf("Money.Add() => (%s, err) expected zero money, got %s", zero)
+	}
 }
 
 func TestSub(t *testing.T) {
 	var monies = []struct {
 		money    Money
-		sub      dec.Decimal
+		sub      decimal.Decimal
 		expected Money
 	}{
 		{Make(d("0"), USD), d("0"), Make(d("0"), USD)},
@@ -235,21 +229,24 @@ func TestSub(t *testing.T) {
 	}
 
 	for _, m := range monies {
-		actual := m.money.Sub(Make(m.sub, USD))
-		if !actual.Equals(m.expected) {
-			t.Errorf("Money.Sub() => %s, expected %s", actual.Amount(), m.expected.Amount())
+		if actual, err := m.money.Sub(Make(m.sub, USD)); err != nil {
+			t.Errorf("Money.Add() => unexpected error %s", err)
+		} else if !actual.Equals(m.expected) {
+			t.Errorf("Money.Sub() => (%s, nil) expected %s", actual.Amount(), m.expected.Amount())
 		}
 	}
 
-	// wrong currency should panic
-	defer catchPanic("Sub()", t)
-	monies[0].money.Sub(Make(d("0"), MXN))
+	if zero, err := monies[0].money.Sub(Make(d("0"), MXN)); err == nil {
+		t.Errorf("Money.Sub() => expected error %s", err)
+	} else if !zero.IsZero() {
+		t.Errorf("Money.Sub() => (%s, err) expected zero money, got %s", zero)
+	}
 }
 
 func TestDiv(t *testing.T) {
 	var monies = []struct {
 		money    Money
-		div      dec.Decimal
+		div      decimal.Decimal
 		expected Money
 	}{
 		{Make(d("0"), USD), d("1"), Make(d("0"), USD)},
@@ -260,13 +257,16 @@ func TestDiv(t *testing.T) {
 	}
 
 	for _, m := range monies {
-		actual := m.money.Div(Make(m.div, USD))
-		if !actual.Equals(m.expected) {
-			t.Errorf("Money.Div() => %s, expected %s", actual.Amount(), m.expected.Amount())
+		if actual, err := m.money.Div(Make(m.div, USD)); err != nil {
+			t.Errorf("Money.Add() => unexpected error %s", err)
+		} else if !actual.Equals(m.expected) {
+			t.Errorf("Money.Div() => (%s, nil) expected %s", actual.Amount(), m.expected.Amount())
 		}
 	}
 
-	// wrong currency should panic
-	defer catchPanic("Div()", t)
-	monies[0].money.Div(Make(d("1"), MXN))
+	if zero, err := monies[0].money.Div(Make(d("1"), MXN)); err == nil {
+		t.Errorf("Money.Div() => expected error %s", err)
+	} else if !zero.IsZero() {
+		t.Errorf("Money.Div() => (%s, err) expected zero money, got %s", zero)
+	}
 }

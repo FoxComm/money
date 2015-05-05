@@ -129,19 +129,32 @@ func (m Money) IsZero() bool {
 }
 
 // Add adds monies. Panics if currency is different.
-func (m Money) Add(other Money) Money {
-	m.panicIfDifferentCurrency(other.currency)
-	return Make(m.amount.Add(other.amount), m.currency)
+func (m Money) Add(other Money) (Money, error) {
+	if err := m.errDifferentCurrency(other.currency); err != nil {
+		return Zero(m.currency), err
+	}
+	return Make(m.amount.Add(other.amount), m.currency), nil
 }
 
 // Sub subtracts monies. Panics if currency is different.
-func (m Money) Sub(other Money) Money {
-	m.panicIfDifferentCurrency(other.currency)
-	return Make(m.amount.Sub(other.amount), m.currency)
+func (m Money) Sub(other Money) (Money, error) {
+	if err := m.errDifferentCurrency(other.currency); err != nil {
+		return Zero(m.currency), err
+	}
+	return Make(m.amount.Sub(other.amount), m.currency), nil
 }
 
 // Div divides monies. Panics if currency is different.
-func (m Money) Div(other Money) Money {
-	m.panicIfDifferentCurrency(other.currency)
-	return Make(m.amount.Div(other.amount), m.currency)
+func (m Money) Div(other Money) (Money, error) {
+	if err := m.errDifferentCurrency(other.currency); err != nil {
+		return Zero(m.currency), err
+	}
+	return Make(m.amount.Div(other.amount), m.currency), nil
+}
+
+func (m Money) errDifferentCurrency(actual currency.Currency) error {
+	if !m.IsCurrency(actual) {
+		return fmt.Errorf("expected currency %s, got %s", m.currency.Code, actual.Code)
+	}
+	return nil
 }
