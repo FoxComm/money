@@ -20,9 +20,3 @@ type Currency struct {
 	// Minor is the 'exponent' of a currency unit. Assume base 10.
 	Minor int
 }
-
-// Table holds all compiled currencies in a map ISO-NAME => value
-var Table = map[string]Currency{
-	"USD": USD,
-	"MXN": MXN,
-}
