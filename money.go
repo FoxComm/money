@@ -72,14 +72,9 @@ func (m Money) String() string {
 	return fmt.Sprintf("%s %s", m.currency.Code, m.Amount())
 }
 
-// Abs returns |amount|
-func (m Money) Abs() dec.Decimal {
-	return m.amount.Abs()
-}
-
 // Equals is true if other Money is the same amount and currency
 func (m Money) Equals(other Money) bool {
-	return m.currency == other.currency && m.Amount().Equals(other.Amount())
+	return m.IsCurrency(other.currency) && m.Amount().Equals(other.Amount())
 }
 
 // Currency returns the set Currency
@@ -87,7 +82,66 @@ func (m Money) Currency() currency.Currency {
 	return m.currency
 }
 
+// IsCurrency tests if the currency is equivalent to another
+func (m Money) IsCurrency(other currency.Currency) bool {
+	return m.currency == other
+}
+
 // WithCurrency transforms this Money to a different Currency
 func (m Money) WithCurrency(c currency.Currency) Money {
 	return Make(m.amount, c)
+}
+
+func (m Money) panicIfDifferentCurrency(c currency.Currency) {
+	if !m.IsCurrency(c) {
+		panic(fmt.Errorf("expected currency %s, got %s", m.currency.Code, c.Code))
+	}
+}
+
+// Math, aka, here be dragons
+
+// Abs returns |amount|
+func (m Money) Abs() dec.Decimal {
+	return m.amount.Abs()
+}
+
+// Negate negates the sign of the amount
+func (m Money) Negate() Money {
+	d := dec.New(-1, 0)
+	return Make(m.amount.Mul(d), m.currency)
+}
+
+// IsPositive returns true if the amount i > 0
+func (m Money) IsPositive() bool {
+	zero := dec.New(0, 0)
+	return m.amount.Cmp(zero) == 1
+}
+
+// IsPositive returns true if the amount i > 0
+func (m Money) IsNegative() bool {
+	zero := dec.New(0, 0)
+	return m.amount.Cmp(zero) == -1
+}
+
+// IsZero returns true if the amount i == 0
+func (m Money) IsZero() bool {
+	return m.amount.Equals(dec.New(0, 0))
+}
+
+// Add adds monies. Panics if currency is different.
+func (m Money) Add(other Money) Money {
+	m.panicIfDifferentCurrency(other.currency)
+	return Make(m.amount.Add(other.amount), m.currency)
+}
+
+// Sub subtracts monies. Panics if currency is different.
+func (m Money) Sub(other Money) Money {
+	m.panicIfDifferentCurrency(other.currency)
+	return Make(m.amount.Sub(other.amount), m.currency)
+}
+
+// Div divides monies. Panics if currency is different.
+func (m Money) Div(other Money) Money {
+	m.panicIfDifferentCurrency(other.currency)
+	return Make(m.amount.Div(other.amount), m.currency)
 }

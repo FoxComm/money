@@ -21,6 +21,15 @@ func d(value string) dec.Decimal {
 	}
 }
 
+func catchPanic(s string, t *testing.T) {
+	err := recover()
+	if err == nil {
+		t.Errorf("Money.%s => %s, expected panic", s, err)
+	} else if _, ok := err.(error); !ok {
+		t.Errorf("Money.%s => %s, expected panic", s, err)
+	}
+}
+
 func TestZero(t *testing.T) {
 	money := Zero(USD)
 	if !money.IsZero() {
@@ -102,4 +111,162 @@ func TestParse(t *testing.T) {
 			t.Errorf("Parse() => %+v, expected %s", parsed, m.money)
 		}
 	}
+}
+
+func TestNegate(t *testing.T) {
+	var monies = []struct {
+		money    Money
+		expected Money
+	}{
+		{Make(d("-1"), USD), Make(d("1"), USD)},
+		{Make(d("-100000"), USD), Make(d("100000"), USD)},
+		{Make(d("5555"), USD), Make(d("-5555"), USD)},
+		{Make(d("-10.005"), USD), Make(d("10.005"), USD)},
+	}
+
+	for _, m := range monies {
+		if !m.money.Negate().Equals(m.expected) {
+			t.Errorf("Money.Negate() => %s, expected %s", m.money.Amount(), m.expected.Amount())
+		}
+	}
+}
+
+func TestIsPositive(t *testing.T) {
+	var monies = []struct {
+		money    Money
+		expected bool
+	}{
+		{Make(d("0"), USD), false},
+		{Make(d("-1"), USD), false},
+		{Make(d("-100000"), USD), false},
+		{Make(d("5555"), USD), true},
+		{Make(d("1"), USD), true},
+		{Make(d("1000000000"), USD), true},
+	}
+
+	for _, m := range monies {
+		isPos := m.money.IsPositive()
+		if isPos != m.expected {
+			t.Errorf("Money.IsPositive() => %s, expected %s", isPos, m.expected)
+		}
+	}
+}
+
+func TestIsNegative(t *testing.T) {
+	var monies = []struct {
+		money    Money
+		expected bool
+	}{
+		{Make(d("0"), USD), false},
+		{Make(d("-1"), USD), true},
+		{Make(d("-100000"), USD), true},
+		{Make(d("5555"), USD), false},
+		{Make(d("1"), USD), false},
+		{Make(d("1000000000"), USD), false},
+	}
+
+	for _, m := range monies {
+		isNeg := m.money.IsNegative()
+		if isNeg != m.expected {
+			t.Errorf("Money.IsNegative() => %s, expected %s", isNeg, m.expected)
+		}
+	}
+}
+
+func TestIsZero(t *testing.T) {
+	var monies = []struct {
+		money    Money
+		expected bool
+	}{
+		{Make(d("0"), USD), true},
+		{Make(d("0.0"), USD), true},
+		{Make(d("0.000000"), USD), true},
+		{Make(d("-1"), USD), false},
+		{Make(d("-100000"), USD), false},
+		{Make(d("5555"), USD), false},
+		{Make(d("1"), USD), false},
+		{Make(d("1000000000"), USD), false},
+	}
+
+	for _, m := range monies {
+		isZero := m.money.IsZero()
+		if isZero != m.expected {
+			t.Errorf("Money.IsZero() => %s, expected %s", isZero, m.expected)
+		}
+	}
+}
+
+func TestAdd(t *testing.T) {
+	var monies = []struct {
+		money    Money
+		add      dec.Decimal
+		expected Money
+	}{
+		{Make(d("0"), USD), d("0"), Make(d("0"), USD)},
+		{Make(d("10"), USD), d("0"), Make(d("10"), USD)},
+		{Make(d(".5"), USD), d(".2"), Make(d(".7"), USD)},
+		{Make(d("0.005"), USD), d("10"), Make(d("10.005"), USD)},
+		{Make(d("0.5"), USD), d("-.02"), Make(d("0.48"), USD)},
+	}
+
+	for _, m := range monies {
+		actual := m.money.Add(Make(m.add, USD))
+		if !actual.Equals(m.expected) {
+			t.Errorf("Money.Add() => %s, expected %s", actual.Amount(), m.expected.Amount())
+		}
+	}
+
+	// wrong currency should panic
+	defer catchPanic("Add()", t)
+	monies[0].money.Add(Make(d("0"), MXN))
+}
+
+func TestSub(t *testing.T) {
+	var monies = []struct {
+		money    Money
+		sub      dec.Decimal
+		expected Money
+	}{
+		{Make(d("0"), USD), d("0"), Make(d("0"), USD)},
+		{Make(d("10"), USD), d("0"), Make(d("10"), USD)},
+		{Make(d(".5"), USD), d(".2"), Make(d(".3"), USD)},
+		{Make(d("0.005"), USD), d("10"), Make(d("-9.995"), USD)},
+		{Make(d("0.5"), USD), d("-.02"), Make(d("0.52"), USD)},
+	}
+
+	for _, m := range monies {
+		actual := m.money.Sub(Make(m.sub, USD))
+		if !actual.Equals(m.expected) {
+			t.Errorf("Money.Sub() => %s, expected %s", actual.Amount(), m.expected.Amount())
+		}
+	}
+
+	// wrong currency should panic
+	defer catchPanic("Sub()", t)
+	monies[0].money.Sub(Make(d("0"), MXN))
+}
+
+func TestDiv(t *testing.T) {
+	var monies = []struct {
+		money    Money
+		div      dec.Decimal
+		expected Money
+	}{
+		{Make(d("0"), USD), d("1"), Make(d("0"), USD)},
+		{Make(d("10"), USD), d("2"), Make(d("5"), USD)},
+		{Make(d(".5"), USD), d(".2"), Make(d("2.5"), USD)},
+		{Make(d("0.005"), USD), d("10"), Make(d("0.0005"), USD)},
+		{Make(d("0.5"), USD), d("-.02"), Make(d("-25"), USD)},
+	}
+
+	for _, m := range monies {
+		actual := m.money.Div(Make(m.div, USD))
+		if !actual.Equals(m.expected) {
+			t.Errorf("Money.Div() => %s, expected %s", actual.Amount(), m.expected.Amount())
+		}
+	}
+
+	// wrong currency should panic
+	defer catchPanic("Div()", t)
+	monies[0].money.Div(Make(d("1"), MXN))
 }
