@@ -6,25 +6,25 @@ import (
 	"strings"
 
 	"github.com/FoxComm/money/currency"
-	dec "github.com/shopspring/decimal"
+	"github.com/shopspring/decimal"
 )
 
 var parseRegex = regexp.MustCompile(`[+-]?[0-9]*[.]?[0-9]*`)
 
 // Money represents an amount of a specific currency as an immutable value
 type Money struct {
-	amount   dec.Decimal
+	amount   decimal.Decimal
 	currency currency.Currency
 }
 
 // Make is the Federal Reserve
-func Make(amount dec.Decimal, c currency.Currency) Money {
+func Make(amount decimal.Decimal, c currency.Currency) Money {
 	return Money{amount, c}
 }
 
 // Zero returns Money with a zero amount
 func Zero(c currency.Currency) Money {
-	return Make(dec.New(0, 0), c)
+	return Make(decimal.New(0, 0), c)
 }
 
 // Parse parses a money.String() into Money
@@ -50,7 +50,7 @@ func Parse(str string) (money Money, err error) {
 
 	amountStr := strings.Replace(parsed[0], string(c.Delimiter), "", 0)
 
-	if amount, err := dec.NewFromString(amountStr); err != nil {
+	if amount, err := decimal.NewFromString(amountStr); err != nil {
 		return money, err
 	} else {
 		return Make(amount, c), nil
@@ -58,13 +58,13 @@ func Parse(str string) (money Money, err error) {
 }
 
 // Amount is the monetary value in its major unit
-func (m Money) Amount() dec.Decimal {
+func (m Money) Amount() decimal.Decimal {
 	return m.amount
 }
 
 // Amount is the monetary value in its minor unit
-func (m Money) AmountMinor() dec.Decimal {
-	return dec.Decimal{}
+func (m Money) AmountMinor() decimal.Decimal {
+	return decimal.Decimal{}
 }
 
 // String represents the amount in a currency context. e.g., for US: "USD 10.00"
@@ -73,7 +73,7 @@ func (m Money) String() string {
 }
 
 // Abs returns |amount|
-func (m Money) Abs() dec.Decimal {
+func (m Money) Abs() decimal.Decimal {
 	return m.amount.Abs()
 }
 
