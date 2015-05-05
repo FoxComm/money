@@ -3,23 +3,28 @@ package money
 import (
 	"fmt"
 	"regexp"
-	"strconv"
 	"strings"
 
 	"github.com/FoxComm/money/currency"
+	dec "github.com/shopspring/decimal"
 )
 
 var parseRegex = regexp.MustCompile(`[+-]?[0-9]*[.]?[0-9]*`)
 
 // Money represents an amount of a specific currency as an immutable value
 type Money struct {
-	amount   int
+	amount   dec.Decimal
 	currency currency.Currency
 }
 
 // Make is the Federal Reserve
-func Make(amount int, c currency.Currency) Money {
+func Make(amount dec.Decimal, c currency.Currency) Money {
 	return Money{amount, c}
+}
+
+// Zero returns Money with a zero amount
+func Zero(c currency.Currency) Money {
+	return Make(dec.New(0, 0), c)
 }
 
 // Parse parses a money.String() into Money
@@ -43,14 +48,9 @@ func Parse(str string) (money Money, err error) {
 		return
 	}
 
-	amountStr := strings.Replace(
-		strings.Replace(parsed[0], string(c.Decimal), "", 1),
-		string(c.Delimiter),
-		"",
-		0,
-	)
+	amountStr := strings.Replace(parsed[0], string(c.Delimiter), "", 0)
 
-	if amount, err := strconv.Atoi(amountStr); err != nil {
+	if amount, err := dec.NewFromString(amountStr); err != nil {
 		return money, err
 	} else {
 		return Make(amount, c), nil
@@ -58,32 +58,28 @@ func Parse(str string) (money Money, err error) {
 }
 
 // Amount is the monetary value in its major unit
-func (m Money) Amount() int {
+func (m Money) Amount() dec.Decimal {
 	return m.amount
 }
 
 // Amount is the monetary value in its minor unit
-func (m Money) AmountMinor() int {
-	return m.amount
+func (m Money) AmountMinor() dec.Decimal {
+	return dec.Decimal{}
 }
 
-// String represents the amount in a currency context. e.g., for US: "USD $10.00"
+// String represents the amount in a currency context. e.g., for US: "USD 10.00"
 func (m Money) String() string {
-	c := m.currency
-	return fmt.Sprintf("%s %.2f", c.Code, float64(m.Amount()))
+	return fmt.Sprintf("%s %s", m.currency.Code, m.Amount())
 }
 
 // Abs returns |amount|
-func (m Money) Abs() uint {
-	if m.amount < 0 {
-		return uint(-m.Amount())
-	}
-	return uint(m.Amount())
+func (m Money) Abs() dec.Decimal {
+	return m.amount.Abs()
 }
 
-// IsEqual is true if other Money is the same amount and currency
-func (m Money) IsEqual(other Money) bool {
-	return m.currency == other.currency && m.Amount() == other.Amount()
+// Equals is true if other Money is the same amount and currency
+func (m Money) Equals(other Money) bool {
+	return m.currency == other.currency && m.Amount().Equals(other.Amount())
 }
 
 // Currency returns the set Currency
