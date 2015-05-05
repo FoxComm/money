@@ -103,3 +103,170 @@ func TestParse(t *testing.T) {
 		}
 	}
 }
+
+func TestNegate(t *testing.T) {
+	var monies = []struct {
+		money    Money
+		expected Money
+	}{
+		{Make(d("-1"), USD), Make(d("1"), USD)},
+		{Make(d("-100000"), USD), Make(d("100000"), USD)},
+		{Make(d("5555"), USD), Make(d("-5555"), USD)},
+		{Make(d("-10.005"), USD), Make(d("10.005"), USD)},
+	}
+
+	for _, m := range monies {
+		if !m.money.Negate().Equals(m.expected) {
+			t.Errorf("Money.Negate() => %s, expected %s", m.money.Amount(), m.expected.Amount())
+		}
+	}
+}
+
+func TestIsPositive(t *testing.T) {
+	var monies = []struct {
+		money    Money
+		expected bool
+	}{
+		{Make(d("0"), USD), false},
+		{Make(d("-1"), USD), false},
+		{Make(d("-100000"), USD), false},
+		{Make(d("5555"), USD), true},
+		{Make(d("1"), USD), true},
+		{Make(d("1000000000"), USD), true},
+	}
+
+	for _, m := range monies {
+		isPos := m.money.IsPositive()
+		if isPos != m.expected {
+			t.Errorf("Money.IsPositive() => %s, expected %s", isPos, m.expected)
+		}
+	}
+}
+
+func TestIsNegative(t *testing.T) {
+	var monies = []struct {
+		money    Money
+		expected bool
+	}{
+		{Make(d("0"), USD), false},
+		{Make(d("-1"), USD), true},
+		{Make(d("-100000"), USD), true},
+		{Make(d("5555"), USD), false},
+		{Make(d("1"), USD), false},
+		{Make(d("1000000000"), USD), false},
+	}
+
+	for _, m := range monies {
+		isNeg := m.money.IsNegative()
+		if isNeg != m.expected {
+			t.Errorf("Money.IsNegative() => %s, expected %s", isNeg, m.expected)
+		}
+	}
+}
+
+func TestIsZero(t *testing.T) {
+	var monies = []struct {
+		money    Money
+		expected bool
+	}{
+		{Make(d("0"), USD), true},
+		{Make(d("0.0"), USD), true},
+		{Make(d("0.000000"), USD), true},
+		{Make(d("-1"), USD), false},
+		{Make(d("-100000"), USD), false},
+		{Make(d("5555"), USD), false},
+		{Make(d("1"), USD), false},
+		{Make(d("1000000000"), USD), false},
+	}
+
+	for _, m := range monies {
+		isZero := m.money.IsZero()
+		if isZero != m.expected {
+			t.Errorf("Money.IsZero() => %s, expected %s", isZero, m.expected)
+		}
+	}
+}
+
+func TestAdd(t *testing.T) {
+	var monies = []struct {
+		money    Money
+		add      decimal.Decimal
+		expected Money
+	}{
+		{Make(d("0"), USD), d("0"), Make(d("0"), USD)},
+		{Make(d("10"), USD), d("0"), Make(d("10"), USD)},
+		{Make(d(".5"), USD), d(".2"), Make(d(".7"), USD)},
+		{Make(d("0.005"), USD), d("10"), Make(d("10.005"), USD)},
+		{Make(d("0.5"), USD), d("-.02"), Make(d("0.48"), USD)},
+	}
+
+	for _, m := range monies {
+		if actual, err := m.money.Add(Make(m.add, USD)); err != nil {
+			t.Errorf("Money.Add() => unexpected error %s", err)
+		} else if !actual.Equals(m.expected) {
+			t.Errorf("Money.Add() => (%s, nil) expected %s", actual.Amount(), m.expected.Amount())
+		}
+	}
+
+	if zero, err := monies[0].money.Add(Make(d("0"), MXN)); err == nil {
+		t.Errorf("Money.Add() => expected error %s", err)
+	} else if !zero.IsZero() {
+		t.Errorf("Money.Add() => (%s, err) expected zero money, got %s", zero)
+	}
+}
+
+func TestSub(t *testing.T) {
+	var monies = []struct {
+		money    Money
+		sub      decimal.Decimal
+		expected Money
+	}{
+		{Make(d("0"), USD), d("0"), Make(d("0"), USD)},
+		{Make(d("10"), USD), d("0"), Make(d("10"), USD)},
+		{Make(d(".5"), USD), d(".2"), Make(d(".3"), USD)},
+		{Make(d("0.005"), USD), d("10"), Make(d("-9.995"), USD)},
+		{Make(d("0.5"), USD), d("-.02"), Make(d("0.52"), USD)},
+	}
+
+	for _, m := range monies {
+		if actual, err := m.money.Sub(Make(m.sub, USD)); err != nil {
+			t.Errorf("Money.Add() => unexpected error %s", err)
+		} else if !actual.Equals(m.expected) {
+			t.Errorf("Money.Sub() => (%s, nil) expected %s", actual.Amount(), m.expected.Amount())
+		}
+	}
+
+	if zero, err := monies[0].money.Sub(Make(d("0"), MXN)); err == nil {
+		t.Errorf("Money.Sub() => expected error %s", err)
+	} else if !zero.IsZero() {
+		t.Errorf("Money.Sub() => (%s, err) expected zero money, got %s", zero)
+	}
+}
+
+func TestDiv(t *testing.T) {
+	var monies = []struct {
+		money    Money
+		div      decimal.Decimal
+		expected Money
+	}{
+		{Make(d("0"), USD), d("1"), Make(d("0"), USD)},
+		{Make(d("10"), USD), d("2"), Make(d("5"), USD)},
+		{Make(d(".5"), USD), d(".2"), Make(d("2.5"), USD)},
+		{Make(d("0.005"), USD), d("10"), Make(d("0.0005"), USD)},
+		{Make(d("0.5"), USD), d("-.02"), Make(d("-25"), USD)},
+	}
+
+	for _, m := range monies {
+		if actual, err := m.money.Div(Make(m.div, USD)); err != nil {
+			t.Errorf("Money.Add() => unexpected error %s", err)
+		} else if !actual.Equals(m.expected) {
+			t.Errorf("Money.Div() => (%s, nil) expected %s", actual.Amount(), m.expected.Amount())
+		}
+	}
+
+	if zero, err := monies[0].money.Div(Make(d("1"), MXN)); err == nil {
+		t.Errorf("Money.Div() => expected error %s", err)
+	} else if !zero.IsZero() {
+		t.Errorf("Money.Div() => (%s, err) expected zero money, got %s", zero)
+	}
+}
