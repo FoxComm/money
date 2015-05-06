@@ -1,8 +1,14 @@
 PACKAGES = $(shell go list ./...)
 VETARGS?=-asmdecl -atomic -bool -buildtags -copylocks -methods \
          -nilfunc -printf -rangeloops -shift -structtags -unsafeptr
+TEST_CMD=go test $(PACKAGES)
+
 test:
-	go test $(PACKAGES)
+	$(TEST_CMD)
+
+ci:
+	go get github.com/shopspring/decimal
+	$(TEST_CMD)
 
 currencies:
 	go run ./internal/main.go
