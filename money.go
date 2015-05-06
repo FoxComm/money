@@ -128,7 +128,7 @@ func (m Money) IsZero() bool {
 	return m.amount.Equals(decimal.New(0, 0))
 }
 
-// Add adds monies. Panics if currency is different.
+// Add adds monies. errors if currency is different.
 func (m Money) Add(other Money) (Money, error) {
 	if err := m.errDifferentCurrency(other.currency); err != nil {
 		return Zero(m.currency), err
@@ -136,7 +136,7 @@ func (m Money) Add(other Money) (Money, error) {
 	return Make(m.amount.Add(other.amount), m.currency), nil
 }
 
-// Sub subtracts monies. Panics if currency is different.
+// Sub subtracts monies. errors if currency is different.
 func (m Money) Sub(other Money) (Money, error) {
 	if err := m.errDifferentCurrency(other.currency); err != nil {
 		return Zero(m.currency), err
@@ -144,12 +144,20 @@ func (m Money) Sub(other Money) (Money, error) {
 	return Make(m.amount.Sub(other.amount), m.currency), nil
 }
 
-// Div divides monies. Panics if currency is different.
+// Div divides monies. errors if currency is different.
 func (m Money) Div(other Money) (Money, error) {
 	if err := m.errDifferentCurrency(other.currency); err != nil {
 		return Zero(m.currency), err
 	}
 	return Make(m.amount.Div(other.amount), m.currency), nil
+}
+
+// Mul multiplies monies. errors if currency is different.
+func (m Money) Mul(other Money) (Money, error) {
+	if err := m.errDifferentCurrency(other.currency); err != nil {
+		return Zero(m.currency), err
+	}
+	return Make(m.amount.Mul(other.amount), m.currency), nil
 }
 
 func (m Money) errDifferentCurrency(actual currency.Currency) error {
