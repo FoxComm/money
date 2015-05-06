@@ -24,7 +24,7 @@ func d(value string) decimal.Decimal {
 func TestZero(t *testing.T) {
 	money := Zero(USD)
 	if !money.IsZero() {
-		t.Errorf("Zero() => %v, expected %s", money.Amount(), 0)
+		t.Errorf("Zero() => %v, expected 0", money.Amount())
 	}
 }
 
@@ -138,7 +138,7 @@ func TestIsPositive(t *testing.T) {
 	for _, m := range monies {
 		isPos := m.money.IsPositive()
 		if isPos != m.expected {
-			t.Errorf("Money.IsPositive() => %s, expected %s", isPos, m.expected)
+			t.Errorf("Money.IsPositive() => %t, expected %t", isPos, m.expected)
 		}
 	}
 }
@@ -159,7 +159,7 @@ func TestIsNegative(t *testing.T) {
 	for _, m := range monies {
 		isNeg := m.money.IsNegative()
 		if isNeg != m.expected {
-			t.Errorf("Money.IsNegative() => %s, expected %s", isNeg, m.expected)
+			t.Errorf("Money.IsNegative() => %t, expected %t", isNeg, m.expected)
 		}
 	}
 }
@@ -182,7 +182,7 @@ func TestIsZero(t *testing.T) {
 	for _, m := range monies {
 		isZero := m.money.IsZero()
 		if isZero != m.expected {
-			t.Errorf("Money.IsZero() => %s, expected %s", isZero, m.expected)
+			t.Errorf("Money.IsZero() => %t, expected %t", isZero, m.expected)
 		}
 	}
 }
@@ -211,7 +211,7 @@ func TestAdd(t *testing.T) {
 	if zero, err := monies[0].money.Add(Make(d("0"), MXN)); err == nil {
 		t.Errorf("Money.Add() => expected error %s", err)
 	} else if !zero.IsZero() {
-		t.Errorf("Money.Add() => (%s, err) expected zero money, got %s", zero)
+		t.Errorf("Money.Add() => (%v, err) expected zero money", zero)
 	}
 }
 
@@ -239,7 +239,7 @@ func TestSub(t *testing.T) {
 	if zero, err := monies[0].money.Sub(Make(d("0"), MXN)); err == nil {
 		t.Errorf("Money.Sub() => expected error %s", err)
 	} else if !zero.IsZero() {
-		t.Errorf("Money.Sub() => (%s, err) expected zero money, got %s", zero)
+		t.Errorf("Money.Sub() => (%v, err) expected zero money", zero)
 	}
 }
 
@@ -267,6 +267,6 @@ func TestDiv(t *testing.T) {
 	if zero, err := monies[0].money.Div(Make(d("1"), MXN)); err == nil {
 		t.Errorf("Money.Div() => expected error %s", err)
 	} else if !zero.IsZero() {
-		t.Errorf("Money.Div() => (%s, err) expected zero money, got %s", zero)
+		t.Errorf("Money.Div() => (%v, err) expected zero money", zero)
 	}
 }
