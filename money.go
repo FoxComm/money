@@ -100,6 +100,14 @@ func (m Money) panicIfDifferentCurrency(c currency.Currency) {
 
 // Math, aka, here be dragons
 
+// Cmp comparies monies. errors if currency is different.
+func (m Money) Cmp(other Money) (int, error) {
+	if err := m.errDifferentCurrency(other.currency); err != nil {
+		return 0, err
+	}
+	return m.amount.Cmp(other.amount), nil
+}
+
 // Abs returns |amount|
 func (m Money) Abs() decimal.Decimal {
 	return m.amount.Abs()

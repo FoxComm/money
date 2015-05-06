@@ -298,3 +298,27 @@ func TestMul(t *testing.T) {
 		t.Errorf("Money.Mul() => (%s, err) expected zero money, got %s", zero)
 	}
 }
+
+func TestCmp(t *testing.T) {
+	var monies = []struct {
+		money    Money
+		other    Money
+		expected int
+	}{
+		{Make(d("0"), USD), Make(d("0"), USD), 0},
+		{Make(d("1"), USD), Make(d("1"), USD), 0},
+		{Make(d("5"), USD), Make(d("5.99999"), USD), -1},
+		{Make(d("0"), USD), Make(d("1"), USD), -1},
+		{Make(d("2"), USD), Make(d("1"), USD), 1},
+		{Make(d("0"), USD), Make(d(".1"), USD), 1},
+		{Make(d(".1"), USD), Make(d("-.1"), USD), 1},
+	}
+
+	for _, m := range monies {
+		if actual, err := m.money.Cmp(m.other); err != nil {
+			t.Errorf("Money.Cmp() => unexpected error %s", err)
+		} else if actual != m.expected {
+			t.Errorf("Money.Cmp() => (%d, nil) expected %d", actual, m.expected)
+		}
+	}
+}
