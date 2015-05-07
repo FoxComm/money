@@ -1,7 +1,6 @@
-PACKAGES = $(shell go list ./...)
 VETARGS?=-asmdecl -atomic -bool -buildtags -copylocks -methods \
          -nilfunc -printf -rangeloops -shift -structtags -unsafeptr
-TEST_CMD=go test $(PACKAGES)
+TEST_CMD=go test ./...
 
 test:
 	$(TEST_CMD)
