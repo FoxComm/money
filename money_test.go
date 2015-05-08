@@ -21,6 +21,18 @@ func d(value string) decimal.Decimal {
 	}
 }
 
+func checkForZeroAndErr(t *testing.T, funcName string, zero Money, err error) {
+	if errDiffCurrency, ok := err.(*ErrDifferentCurrency); !ok {
+		t.Errorf("%s => (%+v, err) expected ErrDifferentCurrency, got %s", funcName, zero, err)
+	} else if ok && (errDiffCurrency.Actual == errDiffCurrency.Expected) {
+		t.Errorf("%s => (%+v, err) got ErrDifferentCurrency but currencies are same %s", funcName, zero, errDiffCurrency)
+	}
+
+	if !zero.IsZero() {
+		t.Errorf("%s => (%+v, err) expected zero money", funcName, zero)
+	}
+}
+
 func TestZero(t *testing.T) {
 	money := Zero(USD)
 	if !money.IsZero() {
@@ -210,11 +222,8 @@ func TestAdd(t *testing.T) {
 		}
 	}
 
-	if zero, err := monies[0].money.Add(Make(d("0"), MXN)); err == nil {
-		t.Errorf("Money.Add() => expected error %s", err)
-	} else if !zero.IsZero() {
-		t.Errorf("Money.Add() => (%v, err) expected zero money", zero)
-	}
+	zero, err := monies[0].money.Add(Make(d("0"), MXN))
+	checkForZeroAndErr(t, "Money.Add()", zero, err)
 }
 
 func TestSub(t *testing.T) {
@@ -238,11 +247,8 @@ func TestSub(t *testing.T) {
 		}
 	}
 
-	if zero, err := monies[0].money.Sub(Make(d("0"), MXN)); err == nil {
-		t.Errorf("Money.Sub() => expected error %s", err)
-	} else if !zero.IsZero() {
-		t.Errorf("Money.Sub() => (%v, err) expected zero money", zero)
-	}
+	zero, err := monies[0].money.Sub(Make(d("0"), MXN))
+	checkForZeroAndErr(t, "Money.Sub()", zero, err)
 }
 
 func TestDiv(t *testing.T) {
@@ -266,11 +272,8 @@ func TestDiv(t *testing.T) {
 		}
 	}
 
-	if zero, err := monies[0].money.Div(Make(d("1"), MXN)); err == nil {
-		t.Errorf("Money.Div() => expected error %s", err)
-	} else if !zero.IsZero() {
-		t.Errorf("Money.Div() => (%v, err) expected zero money", zero)
-	}
+	zero, err := monies[0].money.Div(Make(d("1"), MXN))
+	checkForZeroAndErr(t, "Money.Div()", zero, err)
 }
 
 func TestMul(t *testing.T) {
@@ -294,11 +297,8 @@ func TestMul(t *testing.T) {
 		}
 	}
 
-	if zero, err := monies[0].money.Mul(Make(d("1"), MXN)); err == nil {
-		t.Errorf("Money.Mul() => expected error %s", err)
-	} else if !zero.IsZero() {
-		t.Errorf("Money.Mul() => (%s, err) expected zero money, got %s", zero)
-	}
+	zero, err := monies[0].money.Mul(Make(d("1"), MXN))
+	checkForZeroAndErr(t, "Money.Mul()", zero, err)
 }
 
 func TestCmp(t *testing.T) {
@@ -312,7 +312,7 @@ func TestCmp(t *testing.T) {
 		{Make(d("5"), USD), Make(d("5.99999"), USD), -1},
 		{Make(d("0"), USD), Make(d("1"), USD), -1},
 		{Make(d("2"), USD), Make(d("1"), USD), 1},
-		{Make(d("0"), USD), Make(d(".1"), USD), 1},
+		{Make(d(".1"), USD), Make(d("0"), USD), 1},
 		{Make(d(".1"), USD), Make(d("-.1"), USD), 1},
 	}
 
@@ -320,7 +320,7 @@ func TestCmp(t *testing.T) {
 		if actual, err := m.money.Cmp(m.other); err != nil {
 			t.Errorf("Money.Cmp() => unexpected error %s", err)
 		} else if actual != m.expected {
-			t.Errorf("Money.Cmp() => (%d, nil) expected %d", actual, m.expected)
+			t.Errorf("Money.Cmp() => (%d, nil) expected %d %+v", actual, m.expected, m.money.Amount())
 		}
 	}
 }
