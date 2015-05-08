@@ -23,13 +23,13 @@ func d(value string) decimal.Decimal {
 
 func checkForZeroAndErr(t *testing.T, funcName string, zero Money, err error) {
 	if errDiffCurrency, ok := err.(*ErrDifferentCurrency); !ok {
-		t.Errorf("%s => (%+v, %s) expected ErrDifferentCurrency, got %s", funcName, zero, err)
+		t.Errorf("%s => (%+v, err) expected ErrDifferentCurrency, got %s", funcName, zero, err)
 	} else if ok && (errDiffCurrency.Actual == errDiffCurrency.Expected) {
-		t.Errorf("%s => (%+v, %s) got ErrDifferentCurrency but currencies are same %s", errDiffCurrency)
+		t.Errorf("%s => (%+v, err) got ErrDifferentCurrency but currencies are same %s", funcName, zero, errDiffCurrency)
 	}
 
 	if !zero.IsZero() {
-		t.Errorf("%s => (%+v, err) expected zero money, got %s", funcName, zero)
+		t.Errorf("%s => (%+v, err) expected zero money", funcName, zero)
 	}
 }
 
