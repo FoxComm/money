@@ -36,7 +36,7 @@ func checkForZeroAndErr(t *testing.T, funcName string, zero Money, err error) {
 func TestZero(t *testing.T) {
 	money := Zero(USD)
 	if !money.IsZero() {
-		t.Errorf("Zero() => %v, expected %s", money.Amount(), 0)
+		t.Errorf("Zero() => %v, expected 0", money.Amount())
 	}
 }
 
@@ -152,7 +152,7 @@ func TestIsPositive(t *testing.T) {
 	for _, m := range monies {
 		isPos := m.money.IsPositive()
 		if isPos != m.expected {
-			t.Errorf("Money.IsPositive() => %s, expected %s", isPos, m.expected)
+			t.Errorf("Money.IsPositive() => %t, expected %t", isPos, m.expected)
 		}
 	}
 }
@@ -173,7 +173,7 @@ func TestIsNegative(t *testing.T) {
 	for _, m := range monies {
 		isNeg := m.money.IsNegative()
 		if isNeg != m.expected {
-			t.Errorf("Money.IsNegative() => %s, expected %s", isNeg, m.expected)
+			t.Errorf("Money.IsNegative() => %t, expected %t", isNeg, m.expected)
 		}
 	}
 }
@@ -196,7 +196,7 @@ func TestIsZero(t *testing.T) {
 	for _, m := range monies {
 		isZero := m.money.IsZero()
 		if isZero != m.expected {
-			t.Errorf("Money.IsZero() => %s, expected %s", isZero, m.expected)
+			t.Errorf("Money.IsZero() => %t, expected %t", isZero, m.expected)
 		}
 	}
 }
