@@ -1,5 +1,7 @@
 # Money
 
+[![Build status](https://badge.buildkite.com/4adcfafd46e900e1c20a92112ff00b84cee1bad3b4b55a3672.svg)](https://buildkite.com/foxcommerce/money)
+
 A Go library handling money, currencies, and exchange conversion.
 
 ## Goals
