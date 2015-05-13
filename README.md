@@ -41,11 +41,11 @@ Ideas and inspiration drawn from:
 
 ## Resources
 
-[ISO 4217](http://en.wikipedia.org/wiki/ISO_4217)
-[Currency conversions](http://www.yacoset.com/how-to-handle-currency-conversions)
-[Exchange rate](http://en.wikipedia.org/wiki/Exchange_rate)
-[Circulating currencies](http://en.wikipedia.org/wiki/List_of_circulating_currencies)
-[Decimal pkg post](http://engineering.shopspring.com/2015/03/03/decimal/)
+* [ISO 4217](http://en.wikipedia.org/wiki/ISO_4217)
+* [Currency conversions](http://www.yacoset.com/how-to-handle-currency-conversions)
+* [Exchange rate](http://en.wikipedia.org/wiki/Exchange_rate)
+* [Circulating currencies](http://en.wikipedia.org/wiki/List_of_circulating_currencies)
+* [Decimal pkg post](http://engineering.shopspring.com/2015/03/03/decimal/)
 
 ## License
 
