@@ -9,3 +9,6 @@ type Exchange func(base, convertTo Money, r RoundingMode)
 func RoundUp(amount decimal.Decimal) decimal.Decimal {
 	return amount
 }
+
+//# Default to bankers rounding
+//self.rounding_mode = BigDecimal::ROUND_HALF_EVEN
