@@ -1,6 +1,8 @@
 package money
 
 import (
+	"database/sql/driver"
+	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -31,6 +33,16 @@ func (e *ErrDifferentCurrency) Error() string {
 // Make is the Federal Reserve
 func Make(amount decimal.Decimal, c currency.Currency) Money {
 	return Money{amount, c}
+}
+
+// MakeFromString is the Federal Reserve
+func MakeFromString(amount string, c currency.Currency) (Money, error) {
+	d, err := decimal.NewFromString(amount)
+	if err != nil {
+		return Zero(c), err
+	}
+
+	return Money{d, c}, nil
 }
 
 // Zero returns Money with a zero amount
@@ -80,7 +92,11 @@ func (m Money) AmountMinor() decimal.Decimal {
 
 // String represents the amount in a currency context. e.g., for US: "USD 10.00"
 func (m Money) String() string {
-	return fmt.Sprintf("%s %s", m.currency.Code, m.Amount())
+	amt := m.Amount().String()
+	if !strings.Contains(amt, string(m.currency.Decimal)) {
+		amt += fmt.Sprintf("%s00", string(m.currency.Decimal))
+	}
+	return fmt.Sprintf("%s %s", m.currency.Code, amt)
 }
 
 // Equals is true if other Money is the same amount and currency
@@ -177,4 +193,44 @@ func (m Money) Mul(other Money) (Money, error) {
 		return Zero(m.currency), &ErrDifferentCurrency{m.currency, other.currency}
 	}
 	return Make(m.amount.Mul(other.amount), m.currency), nil
+}
+
+// UnmarshalJSON implements the json.Unmarshaler interface.
+func (m *Money) UnmarshalJSON(data []byte) (err error) {
+	*m, err = Parse(strings.Trim(string(data), `"`))
+	return
+}
+
+// MarshalJSON implements the json.Marshaler interface.
+func (m Money) MarshalJSON() ([]byte, error) {
+	return []byte(`"` + m.String() + `"`), nil
+}
+
+// Scan implements the sql.Scanner interface for database deserialization.
+func (m *Money) Scan(value interface{}) (err error) {
+	asBytes, ok := value.([]byte)
+	if !ok {
+		return errors.New("scan value was not []byte")
+	}
+
+	*m, err = Parse(string(asBytes))
+	return err
+}
+
+// Value implements the driver.Valuer interface for database serialization.
+func (m Money) Value() (driver.Value, error) {
+	return m.String(), nil
+}
+
+// UnmarshalText implements the encoding.TextUnmarshaler interface for XML
+// deserialization.
+func (m *Money) UnmarshalText(text []byte) (err error) {
+	*m, err = Parse(string(text))
+	return
+}
+
+// MarshalText implements the encoding.TextMarshaler interface for XML
+// serialization.
+func (m Money) MarshalText() ([]byte, error) {
+	return []byte(m.String()), nil
 }
