@@ -1,5 +1,7 @@
 package currency
 
+import "strings"
+
 // Currency represents fiat money
 type Currency struct {
 	// Code is the ISO 4217 alpha-3 name for the currency
@@ -19,4 +21,14 @@ type Currency struct {
 
 	// Minor is the 'exponent' of a currency unit. Assume base 10.
 	Minor int
+}
+
+// String is the upcased ISO alpha-3 name
+func (c Currency) String() string {
+	return strings.ToUpper(c.Code)
+}
+
+// Equals is true if the currencies are the same
+func (c Currency) Equals(other Currency) bool {
+	return c == other
 }
