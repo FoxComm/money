@@ -2,6 +2,7 @@ package money
 
 import (
 	"errors"
+	"strings"
 	"testing"
 
 	. "github.com/FoxComm/money/currency"
@@ -80,15 +81,13 @@ func TestEquals(t *testing.T) {
 }
 
 func TestString(t *testing.T) {
-	t.Skip("TestString is broken for now")
-
 	var monies = []struct {
 		money    Money
 		expected string
 	}{
-		{Make(d("-1"), USD), "USD -1.00"},
-		{Make(d("10"), USD), "USD 10.00"},
-		{Make(d("1055"), USD), "USD 1055.00"},
+		{Make(d("-100"), USD), "USD -100.00"},
+		{Make(d("1000"), USD), "USD 1000.00"},
+		{Make(d("105500"), USD), "USD 105500.00"},
 	}
 
 	for _, m := range monies {
@@ -322,5 +321,91 @@ func TestCmp(t *testing.T) {
 		} else if actual != m.expected {
 			t.Errorf("Money.Cmp() => (%d, nil) expected %d %+v", actual, m.expected, m.money.Amount())
 		}
+	}
+}
+
+func TestMinor(t *testing.T) {
+	t.Skip("Need to implement minor/exponent")
+}
+
+func TestJSON(t *testing.T) {
+	m := Make(d("10"), USD)
+	byt, err := m.MarshalJSON()
+	value := string(byt)
+
+	if err != nil {
+		t.Errorf("Money.MarshalJSON() => %s, unexpected error %s", value, err)
+	}
+
+	expected := `"USD 10.00"`
+
+	if value != expected {
+		t.Errorf("Money.MarshalJSON() => (%s, nil) expected %s", value, expected)
+	}
+
+	m = Money{}
+	err = m.UnmarshalJSON(byt)
+
+	if err != nil {
+		t.Errorf("Money.UnmarshalJSON() => unexpected error %s", err)
+	}
+
+	expected = strings.Trim(expected, `"`)
+	if m.String() != expected {
+		t.Errorf("Money.UnmarshalJSON().String() => expected %s, got %s", expected, m.String())
+	}
+}
+
+func TestTextSerialization(t *testing.T) {
+	m := Make(d("10"), USD)
+	byt, err := m.MarshalText()
+	value := string(byt)
+
+	if err != nil {
+		t.Errorf("Money.MarshalText() => %s, unexpected error %s", value, err)
+	}
+
+	expected := "USD 10.00"
+
+	if value != expected {
+		t.Errorf("Money.MarshalText() => (%s, nil) expected %s", value, expected)
+	}
+
+	m = Money{}
+	err = m.UnmarshalText(byt)
+
+	if err != nil {
+		t.Errorf("Money.UnmarshalText() => unexpected error %s", err)
+	}
+
+	if m.String() != expected {
+		t.Errorf("Money.UnmarshalText().String() => expected %s, got %s", expected, m.String())
+	}
+}
+
+func TestDBSerialization(t *testing.T) {
+	m := Make(d("10"), USD)
+	driverValue, err := m.Value()
+	value := driverValue.(string)
+
+	if err != nil {
+		t.Errorf("Money.MarshalText() => %s, unexpected error %s", value, err)
+	}
+
+	expected := "USD 10.00"
+
+	if value != expected {
+		t.Errorf("Money.MarshalText() => (%s, nil) expected %s", value, expected)
+	}
+
+	m = Money{}
+	err = m.Scan([]byte(value))
+
+	if err != nil {
+		t.Errorf("Money.UnmarshalText() => unexpected error %s", err)
+	}
+
+	if m.String() != expected {
+		t.Errorf("Money.UnmarshalText().String() => expected %s, got %s", expected, m.String())
 	}
 }
